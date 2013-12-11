@@ -1,0 +1,13 @@
+Package: CAGExploreR
+Type: Package
+Title: Analyzes Differential Promoter Composition in CAGE-Seq data
+Version: 1.0
+Date: 2013-07-14
+Author: Emmanuel Dimont
+Maintainer: Emmanuel Dimont <edimont@mail.harvard.edu>
+Description: Refer to my Bioinformatics Application Note
+License: MIT
+Depends: R (>= 3.0.1), Rsamtools, R2HTML, GenomicFeatures, data.table,
+        edgeR
+Imports: Rsamtools, R2HTML, GenomicFeatures, data.table, edgeR
+Packaged: 2013-11-06 19:45:42 UTC; edimont

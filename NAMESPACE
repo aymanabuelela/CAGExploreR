@@ -1,0 +1,1 @@
+export(definePromoters,countTags,pool,diffcomp,plotcomp,html.report)
