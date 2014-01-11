@@ -8,11 +8,11 @@ Generates an HTML report with a list of promoter composition plots for convenien
 html.report is a wrapper for plotcomp() that repeatedly calls the plotting function and saves the output in an HTML file. 
 }
 \usage{
-html.report(data.pooled, k, fig.dir = "Figures", report.name = "Switch Report")
+html.report(x, k, fig.dir = "Figures", report.name = "Switch Report")
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{data.pooled}{
+  \item{x}{
 DGEList from pool() function call. 
 }
   \item{k}{
@@ -32,7 +32,7 @@ Gene names can be specified either manually one by one, or by referring to a cer
 Nothing is returned. 
 }
 \references{
-%% ~put references to the literature/web site here ~
+ ~put references to the literature/web site here ~
 }
 \author{
 Emmanuel Dimont - Hide Laboratory for Computational Biology. Department of Biostatistics. Harvard School of Public Health. (edimont@mail.harvard.edu)
@@ -48,22 +48,25 @@ Just like plotcomp(), this function can take a long time to run. Each figure cou
 }
 \examples{
 \dontrun{
-#Load a count table
 data(mcf7a549.raw.counts.F5)
-#Create a DGEList object
+annotations = osc2info(mcf7a549.raw.counts.F5$counts$region)
+my.ids <- c("a549.1", "a549.2", "mcf7.1", "mcf7.2")
+
 my.data = DGEList(
-	counts = mcf7a549.raw.counts.F5$counts[,5:16],
+	counts = mcf7a549.raw.counts.F5$counts[,-c(1,2),with=FALSE], #remove columns 1&2
 	lib.size = mcf7a549.raw.counts.F5$depth,
-	group = sapply(strsplit(colnames(mcf7a549.raw.counts.F5$counts[,5:16]),".",fixed=TRUE)
-		,function(x) x[1]),
+	group = my.ids, #will not pool replicates
+	#group = c("a549","a549","mcf7","mcf7"), #pools replicates
+	#group = select(my.ids,".",1), #pools replicates (alternative)
 	genes = data.frame(
-	chr = mcf7a549.raw.counts.F5$counts$chr,
-	strand = mcf7a549.raw.counts.F5$counts$strand,
-	start = mcf7a549.raw.counts.F5$counts$start,
-	end = mcf7a549.raw.counts.F5$counts$end,
+	chr = annotations$chr,
+	strand = annotations$strand,
+	start = annotations$start,
+	end = annotations$end,
 	gene = mcf7a549.raw.counts.F5$counts$gene
 ),
-	remove.zeros = FALSE)
+	remove.zeros = FALSE
+)
 
 #OPTIONALLY prior to pooling:
 #Normalize samples

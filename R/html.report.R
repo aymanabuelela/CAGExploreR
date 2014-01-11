@@ -1,6 +1,7 @@
 html.report <-
 function(x,k,fig.dir = "Figures",report.name="Switch Report")
 {
+.HTML.file = NULL
 
 dir.create(fig.dir)
 oldwd = getwd()

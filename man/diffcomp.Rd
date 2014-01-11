@@ -32,6 +32,7 @@ if detailed=FALSE (default), a data.frame is produced with gene-level statistics
 \item{GeneHetero}{0 to 1. Gene expression heterogeneity. (1 - normalized entropy) of gene expression across samples. Higher values show larger changes across samples}
 \item{Coverage}{numeric. Proportion of CAGE-Seq tags mapping to defined promoter regions relative to all tags mapping to the entire gene region. Values close to 1 signify good promoter set definitions. Values over 1 point to the possibility of defined promoter regions that overlap one another. Values close to 0 signify poor coverage by promoters, possibility of large level of background noise or novel undefined promoter. NA if gene boundaries are unknown and hence, coverage cannot be computed.}
 \item{dominant.promoter.switch}{character. displays which promoter(s) switch from being dominant in one condition to another}
+\item{RepAgree}{integer. Specified how well replicates cluster together within their respective samples. A value of 1 means that replicates cluster perfectly together, larger values mean that replicates do not. This number is the maximum number of discordant sample labels that cluster together after cutting the dendrogram of the promoter composition vectors hierarchical clustering results.}
 
 If detailed=TRUE, a more detailed data.frame is produced with promoter-level statistics. By default, every pairwise comparison of promoters within genes for all genes will be displayed, but as the number of samples simultaneously compared increases, this value can be decreased, since the number of rows in the output grows very rapidly and can quickly lead to memory overload problems.
 \item{comparison}{character. if text=TRUE, Shows pair of promoters and pair of samples being compared}
@@ -43,7 +44,7 @@ If detailed=TRUE, a more detailed data.frame is produced with promoter-level sta
 \item{qvalue}{numeric. Multiplicity corrected p-value. Note: if top is used as an argument, then this is based only on the p-values in the current table only, and not on all results for all genes.}
 }
 \references{
-%% ~put references to the literature/web site here ~
+ ~put references to the literature/web site here ~
 }
 \author{
 Emmanuel Dimont - Hide Laboratory for Computational Biology. Department of Biostatistics. Harvard School of Public Health. (edimont@mail.harvard.edu)
@@ -54,22 +55,25 @@ Emmanuel Dimont - Hide Laboratory for Computational Biology. Department of Biost
 }
 \examples{
 \dontrun{
-#Load a count table
 data(mcf7a549.raw.counts.F5)
-#Create a DGEList object
+annotations = osc2info(mcf7a549.raw.counts.F5$counts$region)
+my.ids <- c("a549.1", "a549.2", "mcf7.1", "mcf7.2")
+
 my.data = DGEList(
-	counts = mcf7a549.raw.counts.F5$counts[,5:16],
+	counts = mcf7a549.raw.counts.F5$counts[,-c(1,2),with=FALSE], #remove columns 1&2
 	lib.size = mcf7a549.raw.counts.F5$depth,
-	group = sapply(strsplit(colnames(mcf7a549.raw.counts.F5$counts[,5:16]),".",fixed=TRUE)
-		,function(x) x[1]),
+	group = my.ids, #will not pool replicates
+	#group = c("a549","a549","mcf7","mcf7"), #pools replicates
+	#group = select(my.ids,".",1), #pools replicates (alternative)
 	genes = data.frame(
-	chr = mcf7a549.raw.counts.F5$counts$chr,
-	strand = mcf7a549.raw.counts.F5$counts$strand,
-	start = mcf7a549.raw.counts.F5$counts$start,
-	end = mcf7a549.raw.counts.F5$counts$end,
+	chr = annotations$chr,
+	strand = annotations$strand,
+	start = annotations$start,
+	end = annotations$end,
 	gene = mcf7a549.raw.counts.F5$counts$gene
 ),
-	remove.zeros = FALSE)
+	remove.zeros = FALSE
+)
 
 #OPTIONALLY prior to pooling:
 #Normalize samples

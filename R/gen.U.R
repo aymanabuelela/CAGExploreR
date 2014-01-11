@@ -1,19 +1,20 @@
 gen.U <- function(C,P,B=1000,mu,cutoff,pvalue=T,seed=1,phi)
 {
-	lambda = mu[rep(1:C,P)] #uses promoter means
-	phi = phi[rep(1:C,P)]
+	lambda = mu[rep(1:P,C)] #uses promoter means
+	phi = phi[rep(1:P,C)]
 	size=1/phi
 	set.seed(seed)
 	if(sum(phi)>(1e-12)) Z = matrix(rnbinom(n=C*P*B,mu = lambda,size=size),nrow=C*P)
 	if(sum(phi)<(1e-12)) Z = matrix(rpois(C*P*B,lambda = lambda),nrow=C*P)
 	S = colSums(Z)
 	Pij = t(t(Z)/S)
-	r = matrix(NA,nrow=C,ncol=B)
-	for(k in 1:C) r[k,] = t(t(colSums(Z[seq(k,C*P-C+k,C),]))/S)
-	c = matrix(NA,nrow=P,ncol=B)
-	for(k in 1:P) c[k,] = t(t(colSums(Z[seq(1+C*(k-1),C*k),]))/S)
-	RR = r[rep(1:C,P),]
-	CC = c[rep(1:P,rep(C,P)),]
+	c = matrix(NA,nrow=C,ncol=B)
+	for(k in 1:C) c[k,] = t(t(colSums(Z[seq(1+P*(k-1),P*k),]))/S)	
+	r = matrix(NA,nrow=P,ncol=B)
+	for(k in 1:P) r[k,] = t(t(colSums(Z[seq(k,C*P-P+k,P),]))/S)
+	
+	RR = r[rep(1:P,C),]
+	CC = c[rep(1:C,rep(P,C)),]
 
 	temp = Pij*log((RR*CC)/Pij)
 	temp[is.nan(temp)] = 0

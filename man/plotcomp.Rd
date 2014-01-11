@@ -25,7 +25,7 @@ This plot consists of several sections. The first is a dendrogram clustering the
 \value{
 character. This function returns a character vector of promoter names that correspond to this gene in decreasing order of total expression. }
 \references{
-%% ~put references to the literature/web site here ~
+ ~put references to the literature/web site here ~
 }
 \author{
 Emmanuel Dimont - Hide Laboratory for Computational Biology. Department of Biostatistics. Harvard School of Public Health. (edimont@mail.harvard.edu)
@@ -42,22 +42,25 @@ ENSEMBL data corresponds to the latest hg19 human genome build and is locally st
 \examples{
 \dontrun{
 
-#Load a count table
 data(mcf7a549.raw.counts.F5)
-#Create a DGEList object
+annotations = osc2info(mcf7a549.raw.counts.F5$counts$region)
+my.ids <- c("a549.1", "a549.2", "mcf7.1", "mcf7.2")
+
 my.data = DGEList(
-	counts = mcf7a549.raw.counts.F5$counts[,5:16],
+	counts = mcf7a549.raw.counts.F5$counts[,-c(1,2),with=FALSE], #remove columns 1&2
 	lib.size = mcf7a549.raw.counts.F5$depth,
-	group = sapply(strsplit(colnames(mcf7a549.raw.counts.F5$counts[,5:16]),".",fixed=TRUE)
-		,function(x) x[1]),
+	group = my.ids, #will not pool replicates
+	#group = c("a549","a549","mcf7","mcf7"), #pools replicates
+	#group = select(my.ids,".",1), #pools replicates (alternative)
 	genes = data.frame(
-	chr = mcf7a549.raw.counts.F5$counts$chr,
-	strand = mcf7a549.raw.counts.F5$counts$strand,
-	start = mcf7a549.raw.counts.F5$counts$start,
-	end = mcf7a549.raw.counts.F5$counts$end,
+	chr = annotations$chr,
+	strand = annotations$strand,
+	start = annotations$start,
+	end = annotations$end,
 	gene = mcf7a549.raw.counts.F5$counts$gene
 ),
-	remove.zeros = FALSE)
+	remove.zeros = FALSE
+)
 
 #OPTIONALLY prior to pooling:
 #Normalize samples

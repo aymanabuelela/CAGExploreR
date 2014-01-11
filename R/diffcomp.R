@@ -1,6 +1,7 @@
 diffcomp <-
 function(x,detailed=F,top="all",gene=NA,B=1000,seed=1,mc.adjust="fdr",text=TRUE) 
 {
+ncond = length(unique(select(as.character(x$samples$group),".",1)))
 lib.counts = x$pooled.samples[,"effective.lib.size"]
 n.lib = length(lib.counts)
 
@@ -32,8 +33,8 @@ theilU[theilU==Inf] = 0 #only one promoter expressed
 
 u.pvalues = mapply(function(x,u) {
 	gen.U(C=(ncol(x)-1),P=nrow(x),B=B,mu=rowMeans(x[,-grep("dispersion",colnames(x))]),cutoff=u,seed=seed,phi=x[,"dispersion"])
-	#gen.U(C=(ncol(x)-1),P=nrow(x),B=B,mu=as.numeric(t(x[,-grep("phi",colnames(x))])),cutoff=u,seed=seed,phi=x[,"phi"])
-	#gen.U(C=(ncol(x)-1),P=nrow(x),B=B,mu=rowSums(x[,-grep("phi",colnames(x))]),cutoff=u,seed=seed,phi=x[,"phi"])
+	#gen.U(C=(ncol(x)-1),P=nrow(x),B=B,mu=as.numeric(t(x[,-grep("dispersion",colnames(x))])),cutoff=u,seed=seed,phi=x[,"dispersion"])
+	#gen.U(C=(ncol(x)-1),P=nrow(x),B=B,mu=rowSums(x[,-grep("dispersion",colnames(x))]),cutoff=u,seed=seed,phi=x[,"dispersion"])
 	#gen.U(C=(ncol(x)-1),P=nrow(x),B=B,mu=rowMeans(x[,-grep("phi",colnames(x))]),cutoff=u,seed=seed,phi=rep(0.8,nrow(x)))
 },all.data.w.phi,theilU)
 
@@ -56,8 +57,9 @@ qvalue.text = mc.adjust
 if(mc.adjust=="none") qvalue.text = "pvalue"
 
 Dominating = unlist(lapply(all.data,function(x) dominating(x)))
+RepAgree = unlist(lapply(all.data,function(x) repagree(x,ncond)))
 
-significance.pars = data.frame(entropy.Reduction=theilU,pvalue=u.pvalues,U.FDR=u.qvalues,geneHetero=geneHetero,coverage=Coverage,dominant.promoter.switch=Dominating)
+significance.pars = data.frame(entropy.Reduction=theilU,pvalue=u.pvalues,U.FDR=u.qvalues,geneHetero=geneHetero,coverage=Coverage,dominant.promoter.switch=Dominating,RepAgree=RepAgree)
 colnames(significance.pars)[3] = qvalue.text
 significance.pars = significance.pars[order(-significance.pars[,1],significance.pars[,2]),]
 return(significance.pars)
