@@ -33,7 +33,7 @@ Emmanuel Dimont - Hide Laboratory for Computational Biology. Department of Biost
 }
 
 \seealso{
-\code{\link{select}}
+\code{\link{Select}}
 }
 \examples{
 \dontrun{

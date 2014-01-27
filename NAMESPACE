@@ -1,1 +1,1 @@
-export(definePromoters,defineGenes,countTags,pool,diffcomp,plotcomp,html.report,info2osc,osc2info,select)
+export(definePromoters,defineGenes,countTags,pool,diffcomp,plotcomp,html.report,info2osc,osc2info,Select,prepEnsemblAnot,getEnsemblAnot)

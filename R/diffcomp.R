@@ -1,7 +1,7 @@
 diffcomp <-
 function(x,detailed=F,top="all",gene=NA,B=1000,seed=1,mc.adjust="fdr",text=TRUE) 
 {
-ncond = length(unique(select(as.character(x$samples$group),".",1)))
+ncond = length(unique(Select(as.character(x$samples$group),".",1)))
 lib.counts = x$pooled.samples[,"effective.lib.size"]
 n.lib = length(lib.counts)
 

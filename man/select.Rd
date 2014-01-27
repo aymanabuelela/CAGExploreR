@@ -1,14 +1,14 @@
-\name{select}
-\alias{select}
+\name{Select}
+\alias{Select}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Extract a substrings from a larger string that contains delimiters
 }
 \description{
-A long character string may contain data that is concatenated together with the use of delimiters. \code{select} is a convenient wrapper for the \code{substr}-locate-\code{unlist} routine. 
+A long character string may contain data that is concatenated together with the use of delimiters. \code{Select} is a convenient wrapper for the \code{substr}-locate-\code{unlist} routine. 
 }
 \usage{
-select(x, split, which)
+Select(x, split, which)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -23,7 +23,7 @@ integer. After splitting, this number indicates which piece to keep.
 }
 }
 \details{
-A combination of calls to \code{select} can be used to perform quite complicated string parsing. 
+A combination of calls to \code{Select} can be used to perform quite complicated string parsing. 
 }
 \value{
 character vector of substring extracted. 
@@ -45,8 +45,8 @@ chr = paste("chr",1:22,sep="")
 strand = sample(c("+","-"),22,replace=TRUE)
 chr.strand = paste(chr,strand,sep=".")
 
-chr.extracted = select(chr.strand,".",1)
-strand.extracted = select(chr.strand,".",2)
+chr.extracted = Select(chr.strand,".",1)
+strand.extracted = Select(chr.strand,".",2)
 
-)
+
 }}

@@ -1,19 +1,14 @@
-plot.gene = function(gene,my.prom.defs,counts,lib.counts)
+plot.gene = function(gene,my.prom.defs,counts,lib.counts,anot_list)
 {
 EXONSTART=EXONEND=CDSSTART=CDSEND=TXNAME=V1=.N=N=NULL
-#data(hg19.ensembl.entrez.hgnc,package="DTGenAnnot",envir=environment())
-#data(hg19.exons.by.gene,package="DTGenAnnot",envir=environment())
-#data(hg19.cds.by.gene,package="DTGenAnnot",envir=environment())
-#data(hg19.exons.by.transcript.by.gene,package="DTGenAnnot",envir=environment())
-#data(hg19.exons.by.transcript,package="DTGenAnnot",envir=environment())
 
-	my.gene = convert(gene,from="HGNC.symbol",to="Ensembl.Gene.ID",using=hg19.ensembl.entrez.hgnc)
+	my.gene = convert(gene,from="hgnc_symbol",to="ensembl_gene_id",using=anot_list$hg19.ensembl.entrez.hgnc)
 	proms = my.prom.defs
-	exons = hg19.exons.by.gene[my.gene][,list(EXONSTART,EXONEND)]
-	cds = hg19.cds.by.gene[my.gene][,list(CDSSTART,CDSEND)]
-	tx.names = hg19.exons.by.transcript.by.gene[my.gene][,unique(TXNAME)]
+	exons = anot_list$hg19.exons.by.gene[my.gene][,list(EXONSTART,EXONEND)]
+	cds = anot_list$hg19.cds.by.gene[my.gene][,list(CDSSTART,CDSEND)]
+	tx.names = anot_list$hg19.exons.by.transcript.by.gene[my.gene][,unique(TXNAME)]
 
-	txs = hg19.exons.by.transcript[tx.names]
+	txs = anot_list$hg19.exons.by.transcript[tx.names]
 	gene.thickness = 0.05
 	leftmost = min(c(exons$EXONSTART,exons$EXONEND))
 	rightmost = max(c(exons$EXONSTART,exons$EXONEND))

@@ -8,7 +8,7 @@ Generates an HTML report with a list of promoter composition plots for convenien
 html.report is a wrapper for plotcomp() that repeatedly calls the plotting function and saves the output in an HTML file. 
 }
 \usage{
-html.report(x, k, fig.dir = "Figures", report.name = "Switch Report")
+html.report(x, k, anot_list, fig.dir = "Figures", report.name = "Switch Report")
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -20,6 +20,9 @@ character. Gene name(s) that are present in the pooled DGEList object. Usually a
 }
   \item{fig.dir}{
 character. Name of the directory that will be created to hold the image files generated. 
+}
+\item{anot_list}{
+list. Annotation list as output from \code{prepEnsemblAnot} 
 }
   \item{report.name}{
 character. Name of the HTML report file. 
@@ -57,7 +60,7 @@ my.data = DGEList(
 	lib.size = mcf7a549.raw.counts.F5$depth,
 	group = my.ids, #will not pool replicates
 	#group = c("a549","a549","mcf7","mcf7"), #pools replicates
-	#group = select(my.ids,".",1), #pools replicates (alternative)
+	#group = Select(my.ids,".",1), #pools replicates (alternative)
 	genes = data.frame(
 	chr = annotations$chr,
 	strand = annotations$strand,

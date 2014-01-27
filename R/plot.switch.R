@@ -1,5 +1,5 @@
 plot.switch <-
-function(x,lib.counts,coverage,GENE)
+function(x,lib.counts,coverage,GENE,anot_list)
 {
 x = x[order(-rowSums(x)),]
 mydata = t(t(as.matrix(x))/colSums(as.matrix(x))) #percentages
@@ -35,7 +35,7 @@ barplot(coverage.temp[order.dendrogram(dendro)]/my.lib.counts*1e6,las=2,horiz=T,
 title(paste(GENE),outer=T)
 prom.data = data.frame(CAGExploreR:::osc2info(rownames(x)))
 
-plot.gene(gene=GENE,my.prom.defs=prom.data,counts=x,lib.counts=lib.counts)
+plot.gene(gene=GENE,my.prom.defs=prom.data,counts=x,lib.counts=lib.counts,anot_list=anot_list)
 
 return(rownames(mydata))
 }

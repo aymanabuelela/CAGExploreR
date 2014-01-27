@@ -6,6 +6,6 @@ samples=cluster=V1=NULL
 	mydata = t(t(as.matrix(x))/colSums(as.matrix(x))) #percentages
 	mydata[is.na(mydata)] = 0
 	test = cutree(hclust(dist(t(mydata))),ncond)
-	test2 = data.table(cluster=test,samples=select(names(test),".",1))
+	test2 = data.table(cluster=test,samples=Select(names(test),".",1))
 	return(test2[,length(unique(samples)),by=cluster][,max(V1)])
 }

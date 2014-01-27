@@ -32,19 +32,18 @@ options(replace.assign=FALSE,width=90)
 \tableofcontents
 \section{Basic Workflow Example}
 \subsection{Installation}
-To install \textbf{CAGExploreR}, you need to have R version 3.0.1 or newer (\url{http://www.r-project.org/}). You can download the package from \url{https://github.com/edimont/CAGExploreR/} into a local directory (we'll assume that this directory is \textit{D:/Downloads}, but this can be anything). There are two files called \textbf{CAGExploreR\_1.0.tar.gz} (main source code) and \textbf{DTGenAnnot\_1.0.tar.gz} (hg19 genome annotation). There is no need to unpack or decompress the contents of these files. Next open R and run the following code (you only have to do this once). Since \textbf{CAGExploreR} depends on several other packages, you will need to install them first. You may be asked if you want to update some previously installed packages but this does not affect \textbf{CAGExploreR} in any way. When downloading from \textbf{CRAN} you may be asked to choose a mirror to download from. Any selection is fine. 
+To install \textbf{CAGExploreR}, you need to have R version 3.0.2 or newer (\url{http://www.r-project.org/}). You can download the package from \url{https://github.com/edimont/CAGExploreR/} into a local directory (we'll assume that this directory is \textit{D:/Downloads}, but this can be anything). There is one file called \textbf{CAGExploreR\_1.0.tar.gz} (main source code). There is no need to unpack or decompress the contents of this file. Next open R and run the following code (you only have to do this once). Since \textbf{CAGExploreR} depends on several other packages, you will need to install them first. You may be asked if you want to update some previously installed packages but this does not affect \textbf{CAGExploreR} in any way. When downloading from \textbf{CRAN} you may be asked to choose a mirror to download from. Any selection is fine. 
 <<repos, eval=FALSE>>=
 #Packages from Bioconductor
 source("http://bioconductor.org/biocLite.R")
-biocLite("edgeR")
+biocLite(c("edgeR","biomaRt","GenomicFeatures"))
 #Packages from CRAN
 install.packages(c("R2HTML","data.table","rbamtools"))
 @
 
-Once the dependencies are installed, we can now install the packages from source, the order is important! Be sure to set the working directory to the one that contains the downloaded package files. 
+Once the dependencies are installed, we can now install the package from source. Be sure to set the working directory to the one that contains the downloaded package files. 
 <<installing, eval=FALSE>>=
 setwd("D:/Downloads") #Locate the folder with the downloaded package files
-install.packages("DTGenAnnot_1.0.tar.gz",type="source") #Install this first
 install.packages("CAGExploreR_1.0.tar.gz",type="source")
 @
 Total time for installing the package and all other dependencies can take several minutes. 
@@ -55,7 +54,36 @@ library(CAGExploreR)
 @
 R may report that certain functions are masked, this is normal. 
 
-\subsection{Loading Data}
+\subsection{Preparing Gene Annotations}
+For \textbf{CAGExploreR} to be able to generate genomic plots, we need to download gene annotation data and make it available to the package. Currently only gene annotation data from \textbf{ENSEMBL} is supported. The package ships with an annotation file that covers only chromosome 22. If you do not have an internet connection while running the example code in this vignette, you can simply load this file and it will be sufficient to complete this vignette. Run the following code and you can skip the rest of this section. If you want to proceed with the full download, skip to the next code block below this one.
+<<getinternalEnsemblAnot,eval=TRUE>>=
+data(EnsemblAnot_chr22) #loads an object EnsemblAnot
+EnsemblAnot = prepEnsemblAnot(EnsemblAnot)
+#You now skip to the next section
+@
+
+To start the download, run the following code, it will automatically get all the necessary data from the \textbf{ENSEMBL} biomart:
+<<getEnsemblAnot,eval=FALSE>>=
+EnsemblAnot = getEnsemblAnot()
+@
+Once the annotation data is downloaded, one more processing step is required before \textbf{CAGExploreR} can use it properly. 
+<<prepEnsemblAnot,eval=FALSE>>=
+EnsemblAnot = prepEnsemblAnot(EnsemblAnot)
+@
+This will create a list, that contains all of the data that the package will require for plotting. Due to the size of the annotation data, the download step can take 10 minutes to complete. To avoid having to do this every time, it is a good idea to complete the preparation process and save the resulting file so that it can be easily loaded in the future. The code below will save the file in the local directory. Example code also shows how to automatically append today's date to the file name. 
+<<saveEnsemblAnot,eval=FALSE>>=
+save(EnsemblAnot,file="EnsemblAnot.RData")
+#save(EnsemblAnot,file=paste0("EnsemblAnot",Sys.Date(),".RData"))
+#can append today's date to the file for version tracking
+@
+If such a file was previously saved, we can load it from the local directory as follows:
+<<loadEnsemblAnot,eval=FALSE>>=
+load("EnsemblAnot.RData")
+#replace name by the one you chose
+@
+This process of loading the annotation file has to be performed every time \textbf{R} is opened for the first time. 
+
+\subsection{Loading User Data}
 \textbf{CAGExploreR} comes pre-loaded with tables that consist of CAGE-Seq tag counts at promoter regions from two samples: the MCF7 breast cancer and the A549 lung cancer cell lines. The example workflow presented here will use this dataset to demonstrate the capabilities of \textbf{CAGExploreR}. For convenience, you can choose to load this data directly from the package and skip the next section. However in practice when analyzing your own personal datasets, you would need to complete the next section.
 \subsubsection{Obtaining tag counts from raw BAM files}
 For this example, the CAGE-Seq BAM files can be downloaded from the ENCODE website \url{http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeRikenCage/}. In addition to the files below you will also need to download the corresponding index files (*.bai). 
@@ -79,10 +107,14 @@ my.ids = c("a549.1","a549.2","mcf7.1","mcf7.2")
 You can also manually enter the names of the files as follows:
 
 <<filesB, eval=TRUE>>=
-my.bai.files = c("wgEncodeRikenCageA549CellPapAlnRep1.bam.bai","wgEncodeRikenCageA549CellPapAlnRep2.bam.bai"
-,"wgEncodeRikenCageMcf7CellPapAlnRep1.bam.bai","wgEncodeRikenCageMcf7CellPapAlnRep2.bam.bai")
-my.bam.files = c("wgEncodeRikenCageA549CellPapAlnRep1.bam","wgEncodeRikenCageA549CellPapAlnRep2.bam"
-,"wgEncodeRikenCageMcf7CellPapAlnRep1.bam","wgEncodeRikenCageMcf7CellPapAlnRep2.bam")
+my.bai.files = c("wgEncodeRikenCageA549CellPapAlnRep1.bam.bai"
+,"wgEncodeRikenCageA549CellPapAlnRep2.bam.bai"
+,"wgEncodeRikenCageMcf7CellPapAlnRep1.bam.bai"
+,"wgEncodeRikenCageMcf7CellPapAlnRep2.bam.bai")
+my.bam.files = c("wgEncodeRikenCageA549CellPapAlnRep1.bam"
+,"wgEncodeRikenCageA549CellPapAlnRep2.bam"
+,"wgEncodeRikenCageMcf7CellPapAlnRep1.bam"
+,"wgEncodeRikenCageMcf7CellPapAlnRep2.bam")
 my.ids = c("a549.1","a549.2","mcf7.1","mcf7.2")
 @
 
@@ -156,7 +188,7 @@ my.data = DGEList(
 	lib.size = mcf7a549.raw.counts.F5$depth,
 	group = my.ids,                          #will not pool replicates
 	#group = c("a549","a549","mcf7","mcf7"), #pools replicates
-	#group = select(my.ids,".",1),           #pools replicates (alternative)
+	#group = Select(my.ids,".",1),           #pools replicates (alternative)
 	
 	genes = data.frame(
 		chr = annotations$chr,
@@ -171,7 +203,7 @@ my.data = DGEList(
 @
 A \textbf{DGEList} object requires four main inputs that we provide here: the counts table, the total library sizes (can be omitted but we discourage this), a grouping table that provides sample group annotation, and a table of "gene" definitions. \textbf{DGEList} objects were originally developed for use in differential gene expression data analysis, that is the reason why the word "gene" is used here, however in our case these are both promoter regions \textit{and} gene regions for coverage analysis. The last option should be used to specify that we do not want to discard promoters or genes with all zero counts. 
 
-A crucial thing to mention here is that the way the \textbf{group} option is specified determines whether or not, and how replicates are combined in downstream analysis. In the example here we specify \textbf{my.ids} as the group identifiers, and because these are all unique, this implies that the replicates are not going to be pooled, but kept separate in later steps. In the example, alternatives are provided that have been commented out (using \#) which would be used if pooling of replicates was desired. The first alternative where we explicitly specify groups, means to say that those samples that share the same group id, will be pooled, i.e. the first 2 and the last 2 replicates will be combined. The last alternative gives the same result but demonstrates the use of the \textbf{select} function which extracts the prefix of the sample id preceding the period. This syntax may be useful when there are a large number of samples available. 
+A crucial thing to mention here is that the way the \textbf{group} option is specified determines whether or not, and how replicates are combined in downstream analysis. In the example here we specify \textbf{my.ids} as the group identifiers, and because these are all unique, this implies that the replicates are not going to be pooled, but kept separate in later steps. In the example, alternatives are provided that have been commented out (using \#) which would be used if pooling of replicates was desired. The first alternative where we explicitly specify groups, means to say that those samples that share the same group id, will be pooled, i.e. the first 2 and the last 2 replicates will be combined. The last alternative gives the same result but demonstrates the use of the \textbf{Select} function which extracts the prefix of the sample id preceding the period. This syntax may be useful when there are a large number of samples available. 
 
 Now let's take a look at what this object looks like. This output should be familiar to \textbf{edgeR} users, but it's basically the same information in more compact form. 
 <<dgelistview,comment=NA>>=
@@ -246,7 +278,7 @@ my.data2 = DGEList(
 	lib.size = mcf7a549.raw.counts.F5$depth,
 	#group = my.ids,                          #will not pool replicates
 	group = c("a549","a549","mcf7","mcf7"), #pools replicates
-	#group = select(my.ids,".",1),           #pools replicates (alternative)
+	#group = Select(my.ids,".",1),           #pools replicates (alternative)
 	
 	genes = data.frame(
 		chr = annotations$chr,
@@ -288,9 +320,9 @@ head(sig.results.detailed)
 
 \subsection{Generating Plots}
 \subsubsection{Visualizing DPC in a gene of interest}
-In order to visualize differential promoter composition in a gene of interest, we need to specify the (un)pooled data object and the gene we want to look at. Let's see what happens in one of our top genes, \textit{GAL3ST1}. Here we choose to use the non-pooled data so that we could see what happens at the replicate level. You can try and see what happens if you choose the pooled data version. NOTE: it can take a few seconds to generate the full figure when plotting for the first time. 
+In order to visualize differential promoter composition in a gene of interest, we need to specify the (un)pooled data object, the gene we want to look at and the object that contains the gene annotation data. Let's see what happens in one of our top genes, \textit{GAL3ST1}. Here we choose to use the non-pooled data so that we could see what happens at the replicate level. You can try and see what happens if you choose the pooled data version. NOTE: it can take a few seconds to generate the full figure when plotting for the first time. 
 <<plot.detailed,echo=1,comment=NA,fig.cap="Differential promoter composition for GAL3ST1 gene with 13 promoters">>=
-plotcomp(data.not.pooled, "GAL3ST1")
+plotcomp(data.not.pooled, "GAL3ST1",EnsemblAnot)
 dev.off()
 @
 
@@ -304,11 +336,11 @@ After a call to \textbf{plotcomp()}, the coordinates of the promoter regions are
 \subsubsection{Making multiple plots in HTML}
 Instead of making plots for each gene one by one, we can perform batch generation into an HTML document:
 <<plot.html,eval=FALSE>>=
-html.report(data.not.pooled,rownames(significant)[1:30])
+html.report(data.not.pooled,rownames(significant)[1:30],EnsemblAnot)
 @
 We once again have to specify the pooled data object, followed by the names of the genes we would like the plots of. In this example we specify to make plots for the top 30 significant genes from the significant subset our results table. Similarly we can specify any number of genes in any order that are of interest (e.g. a list of transcription factors, etc.) This will create an HTML file called \textit{Switch Report.html} in the current directory, together with a folder called \textit{Figures} that will contain individual plots inside. NOTE: if such a file/directory exists already, all files will be overwritten. You can change the names of report files and figure directory easily however:
 <<plot.html2,eval=FALSE>>=
-html.report(data.not.pooled,my.genes,fig.dir="myFigures",report.name="my.report")
+html.report(data.not.pooled,my.genes,EnsemblAnot,fig.dir="myFigures",report.name="my.report")
 @
 
 \newpage
@@ -323,6 +355,11 @@ pch=20,ylab="-log10(q-value)",xlab="log2(odds ratio)",
 main="MCF7 v.s. A549 cell lines")
 
 abline(v=0,h=0)
+@
+
+<<sessioninfo>>=
+sessionInfo()
+date()
 @
 
 \end{document}

@@ -1,7 +1,10 @@
 html.report <-
-function(x,k,fig.dir = "Figures",report.name="Switch Report")
+function(x,k,anot_list,fig.dir = "Figures",report.name="Switch Report")
 {
 .HTML.file = NULL
+confirm="o"
+while(confirm!="n" & confirm!="y" & confirm!="Y" & confirm!="N") {cat(paste0("Create/Overwrite figures in folder ",fig.dir,"? [y/n]:"));confirm = readline()}
+if(confirm=="n" | confirm=="N") invisible(NA)
 
 dir.create(fig.dir)
 oldwd = getwd()
@@ -14,7 +17,7 @@ setwd(fig.dir)
 for(GENE in k)
 {
 	png(paste(as.character(GENE),".png",sep=""),width=1500,height=750,units="px",pointsize=20)
-	PROMS = plotcomp(x,GENE)
+	PROMS = plotcomp(x,GENE,anot_list)
 	dev.off()
 	HTML(paste(counter,"HGNC:",GENE,", promoters:",sep=" "))
 	HTML(PROMS)
