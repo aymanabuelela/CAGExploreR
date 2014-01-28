@@ -40,14 +40,14 @@ u.pvalues = mapply(function(x,u) {
 
 u.qvalues = p.adjust(u.pvalues,mc.adjust)
 
-geneHetero = unlist(base::mapply(function(X,y,z) 
+geneHetero = unlist(mapply(function(X,y,z) 
 {	if(!y) gene.prop = colSums(X)/lib.counts
 	if(y) gene.prop = t(t(coverage.data[match(z,coverage.data$gene),-match("gene",colnames(coverage.data))])/lib.counts)
 	temp=gene.prop/sum(gene.prop)
 	return(1 - sum(entropy(temp))/log(1/n.lib))
 },all.data,as.list(names(all.data)%in%x$pooled.super.counts$gene),names(all.data),SIMPLIFY=F))#0: gene expressed equally across all samples, 1: DEG
 
-Coverage = unlist(base::mapply(function(X,y,z) 
+Coverage = unlist(mapply(function(X,y,z) 
 {	if(!y) return(NA)
 	gene.total = as.numeric(coverage.data[match(z,coverage.data$gene),-match("gene",colnames(coverage.data))])
 	return(mean(colSums(X)/gene.total,na.rm=T))

@@ -33,7 +33,7 @@ coverage.temp = as.numeric(coverage[coverage$gene==GENE,-match("gene",colnames(c
 barplot(coverage.temp[order.dendrogram(dendro)]/my.lib.counts*1e6,las=2,horiz=T,names.arg="",main="Gene",xlab="tpm",space=0)
 }
 title(paste(GENE),outer=T)
-prom.data = data.frame(CAGExploreR:::osc2info(rownames(x)))
+prom.data = data.frame(osc2info(rownames(x)))
 
 plot.gene(gene=GENE,my.prom.defs=prom.data,counts=x,lib.counts=lib.counts,anot_list=anot_list)
 

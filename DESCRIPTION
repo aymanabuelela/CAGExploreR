@@ -7,7 +7,8 @@ Author: Emmanuel Dimont
 Maintainer: Emmanuel Dimont <edimont@mail.harvard.edu>
 Description: CAGExploreR implements an algorithm to calculate and evaluate the statistical significance of the uncertainty coefficient (a.k.a. Theil's U or the proportional entropy reduction). This statistic measures the strength of association between two nominal random variables. One specific application of this package is the detection of differential composition (differences in vectors of proportions) of genes subunits (e.g. promoters) across various biological conditions. The two nominal variables here are the biological conditions and the promoters within genes. The differential composition and the genomic location of these promoters can also be visualized using this package. 
 License: MIT + file LICENSE
-Depends: R (>= 3.0.2), data.table, rbamtools, R2HTML, edgeR, GenomicFeatures, biomaRt
+Depends: R (>= 3.0.2), edgeR, data.table
+Imports: rbamtools, R2HTML, GenomicFeatures, biomaRt, AnnotationDbi
 Suggests: knitr
 URL: https://github.com/edimont/CAGExploreR
 BugReports: https://github.com/edimont/CAGExploreR/issues

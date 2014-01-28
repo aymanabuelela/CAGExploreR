@@ -1,1 +1,5 @@
 export(definePromoters,defineGenes,countTags,pool,diffcomp,plotcomp,html.report,info2osc,osc2info,Select,prepEnsemblAnot,getEnsemblAnot)
+import(rbamtools, R2HTML, edgeR, data.table)
+importFrom(GenomicFeatures,makeTranscriptDbFromBiomart)
+importFrom(biomaRt,getBM,useMart)
+importMethodsFrom(AnnotationDbi,select,keys,columns)
