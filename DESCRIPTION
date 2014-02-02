@@ -1,7 +1,7 @@
 Package: CAGExploreR
 Type: Package
 Title: Analyzes Differential Promoter Composition in CAGE data
-Version: 1.0
+Version: 1.0.1
 Date: 2014-01-05
 Author: Emmanuel Dimont
 Maintainer: Emmanuel Dimont <edimont@mail.harvard.edu>

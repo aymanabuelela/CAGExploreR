@@ -32,7 +32,14 @@ theilU[theilU<0] = 0 #one condition expressed, the other isnt
 theilU[theilU==Inf] = 0 #only one promoter expressed
 
 u.pvalues = mapply(function(x,u) {
-	gen.U(C=(ncol(x)-1),P=nrow(x),B=B,mu=rowMeans(x[,-grep("dispersion",colnames(x))]),cutoff=u,seed=seed,phi=x[,"dispersion"])
+	dat.only = x[,-grep("dispersion",colnames(x))] 
+	rs = rowSums(dat.only)
+	rs[rs<1] = 1
+	mr = max(rs)
+	norm.x = dat.only * mr / rs
+	to.ret = gen.U(C=(ncol(x)-1),P=nrow(x),B=B,mu=rowMeans(norm.x),cutoff=u,seed=seed,phi=x[,"dispersion"])
+	return(to.ret)
+	#gen.U(C=(ncol(x)-1),P=nrow(x),B=B,mu=rowMeans(x[,-grep("dispersion",colnames(x))]),cutoff=u,seed=seed,phi=x[,"dispersion"])
 	#gen.U(C=(ncol(x)-1),P=nrow(x),B=B,mu=as.numeric(t(x[,-grep("dispersion",colnames(x))])),cutoff=u,seed=seed,phi=x[,"dispersion"])
 	#gen.U(C=(ncol(x)-1),P=nrow(x),B=B,mu=rowSums(x[,-grep("dispersion",colnames(x))]),cutoff=u,seed=seed,phi=x[,"dispersion"])
 	#gen.U(C=(ncol(x)-1),P=nrow(x),B=B,mu=rowMeans(x[,-grep("phi",colnames(x))]),cutoff=u,seed=seed,phi=rep(0.8,nrow(x)))

@@ -32,27 +32,18 @@ options(replace.assign=FALSE,width=90)
 \tableofcontents
 \section{Basic Workflow Example}
 \subsection{Installation}
-To install \textbf{CAGExploreR}, you need to have R version 3.0.2 or newer (\url{http://www.r-project.org/}). You can download the package from \url{https://github.com/edimont/CAGExploreR/} into a local directory (we'll assume that this directory is \textit{D:/Downloads}, but this can be anything). There is one file called \textbf{CAGExploreR\_1.0.tar.gz} (main source code). There is no need to unpack or decompress the contents of this file. Next open R and run the following code (you only have to do this once). Since \textbf{CAGExploreR} depends on several other packages, you will need to install them first. You may be asked if you want to update some previously installed packages but this does not affect \textbf{CAGExploreR} in any way. When downloading from \textbf{CRAN} you may be asked to choose a mirror to download from. Any selection is fine. 
-<<repos, eval=FALSE>>=
-#Packages from Bioconductor
-source("http://bioconductor.org/biocLite.R")
-biocLite(c("edgeR","biomaRt","GenomicFeatures"))
-#Packages from CRAN
-install.packages(c("R2HTML","data.table","rbamtools"))
+To install \textbf{CAGExploreR}, you need to have R version 3.0.2 or newer (\url{http://www.r-project.org/}). At the \textbf{R} console, simply type the following code, it will automatically download all other dependencies from \textbf{CRAN} and \textbf{Bioconductor}. When downloading from \textbf{CRAN} you may be asked to choose a mirror to download from. Any selection is fine.
+
+<<autoinstall, eval=FALSE>>=
+setRepositories(ind=1:6)
+install.packages("CAGExploreR")
 @
 
-Once the dependencies are installed, we can now install the package from source. Be sure to set the working directory to the one that contains the downloaded package files. 
-<<installing, eval=FALSE>>=
-setwd("D:/Downloads") #Locate the folder with the downloaded package files
-install.packages("CAGExploreR_1.0.tar.gz",type="source")
-@
-Total time for installing the package and all other dependencies can take several minutes. 
 \subsection{Loading the package}
 Once the package is installed, you can load it just like any other R package, simply type:
 <<loading>>=
 library(CAGExploreR)
 @
-R may report that certain functions are masked, this is normal. 
 
 \subsection{Preparing Gene Annotations}
 For \textbf{CAGExploreR} to be able to generate genomic plots, we need to download gene annotation data and make it available to the package. Currently only gene annotation data from \textbf{ENSEMBL} is supported. The package ships with an annotation file that covers only chromosome 22. If you do not have an internet connection while running the example code in this vignette, you can simply load this file and it will be sufficient to complete this vignette. Run the following code and you can skip the rest of this section. If you want to proceed with the full download, skip to the next code block below this one.
@@ -62,7 +53,7 @@ EnsemblAnot = prepEnsemblAnot(EnsemblAnot)
 #You now skip to the next section
 @
 
-To start the download, run the following code, it will automatically get all the necessary data from the \textbf{ENSEMBL} biomart:
+To start the full download, run the following code, it will automatically get all the necessary data from the \textbf{ENSEMBL} biomart:
 <<getEnsemblAnot,eval=FALSE>>=
 EnsemblAnot = getEnsemblAnot()
 @
@@ -73,8 +64,8 @@ EnsemblAnot = prepEnsemblAnot(EnsemblAnot)
 This will create a list, that contains all of the data that the package will require for plotting. Due to the size of the annotation data, the download step can take 10 minutes to complete. To avoid having to do this every time, it is a good idea to complete the preparation process and save the resulting file so that it can be easily loaded in the future. The code below will save the file in the local directory. Example code also shows how to automatically append today's date to the file name. 
 <<saveEnsemblAnot,eval=FALSE>>=
 save(EnsemblAnot,file="EnsemblAnot.RData")
+#can append today's date to the file for version tracking:
 #save(EnsemblAnot,file=paste0("EnsemblAnot",Sys.Date(),".RData"))
-#can append today's date to the file for version tracking
 @
 If such a file was previously saved, we can load it from the local directory as follows:
 <<loadEnsemblAnot,eval=FALSE>>=
@@ -85,6 +76,7 @@ This process of loading the annotation file has to be performed every time \text
 
 \subsection{Loading User Data}
 \textbf{CAGExploreR} comes pre-loaded with tables that consist of CAGE-Seq tag counts at promoter regions from two samples: the MCF7 breast cancer and the A549 lung cancer cell lines. The example workflow presented here will use this dataset to demonstrate the capabilities of \textbf{CAGExploreR}. For convenience, you can choose to load this data directly from the package and skip the next section. However in practice when analyzing your own personal datasets, you would need to complete the next section.
+
 \subsubsection{Obtaining tag counts from raw BAM files}
 For this example, the CAGE-Seq BAM files can be downloaded from the ENCODE website \url{http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeRikenCage/}. In addition to the files below you will also need to download the corresponding index files (*.bai). 
 \begin{itemize} \itemsep1pt
@@ -108,13 +100,21 @@ You can also manually enter the names of the files as follows:
 
 <<filesB, eval=TRUE>>=
 my.bai.files = c("wgEncodeRikenCageA549CellPapAlnRep1.bam.bai"
+
 ,"wgEncodeRikenCageA549CellPapAlnRep2.bam.bai"
+
 ,"wgEncodeRikenCageMcf7CellPapAlnRep1.bam.bai"
+
 ,"wgEncodeRikenCageMcf7CellPapAlnRep2.bam.bai")
+
 my.bam.files = c("wgEncodeRikenCageA549CellPapAlnRep1.bam"
+
 ,"wgEncodeRikenCageA549CellPapAlnRep2.bam"
+
 ,"wgEncodeRikenCageMcf7CellPapAlnRep1.bam"
+
 ,"wgEncodeRikenCageMcf7CellPapAlnRep2.bam")
+
 my.ids = c("a549.1","a549.2","mcf7.1","mcf7.2")
 @
 
